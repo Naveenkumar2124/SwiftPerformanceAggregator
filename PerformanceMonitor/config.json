@@ -1,0 +1,29 @@
+{
+  "projectName": "pep-swift-shngen",
+  "storage": {
+    "type": "file",
+    "path": "./metrics_data",
+    "connectionString": null,
+    "retentionDays": 90
+  },
+  "enabledCollectors": ["buildTime", "xctest", "instruments"],
+  "collectorSettings": {
+    "buildTime": {
+      "timeout": 300
+    }
+  },
+  "visualizationOptions": {
+    "enabledCharts": ["timeline", "heatmap", "comparison", "distribution", "breakdown"],
+    "defaultTimeRange": {
+      "start": 1718412600.0,
+      "end": 1721104434.0
+    },
+    "colorScheme": "system"
+  },
+  "windsurf": {
+    "apiEndpoint": "https://api.windsurf.io",
+    "apiKey": "your-api-key-here",
+    "enableWebhooks": true,
+    "webhookEndpoint": "https://api.windsurf.io/webhooks"
+  }
+}

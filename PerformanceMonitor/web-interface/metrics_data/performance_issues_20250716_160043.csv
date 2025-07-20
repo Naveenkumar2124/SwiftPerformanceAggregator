@@ -1,0 +1,5 @@
+Issue Type,File Path,Line Number,Issue Description,Severity,Recommendation
+"UI Performance","RAGChatBot/ChatViewModel.swift","33","Complex UI update on main thread","Medium","Minimize work in main thread UI updates"
+"UI Performance","RAGChatBot/ChatView_V2.swift","140","Complex UI update on main thread","Medium","Minimize work in main thread UI updates"
+"UI Performance","RAGChatBot/ChatView.swift","226","Complex UI update on main thread","Medium","Minimize work in main thread UI updates"
+"Resource Usage","RAGChatBot/ChatView_V2.swift","N/A","Timer usage without invalidation","Medium","Always invalidate timers in deinit or when they are no longer needed"

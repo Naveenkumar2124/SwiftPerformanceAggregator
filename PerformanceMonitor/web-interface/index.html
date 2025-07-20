@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swift Performance Analyzer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-speedometer2 me-2"></i>
+                Swift Performance Analyzer
+            </a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Project Analysis</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="analyzeForm">
+                            <div class="mb-3">
+                                <label for="projectPath" class="form-label">Project Path</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="projectPath" 
+                                           placeholder="/path/to/your/swift/project" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="browseButton">
+                                        Browse
+                                    </button>
+                                </div>
+                                <div class="form-text">Enter the full path to your Swift project directory</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Analysis Options</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="analyzeMainThread" checked>
+                                    <label class="form-check-label" for="analyzeMainThread">
+                                        Find main thread blocking operations
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="analyzeLargeFiles" checked>
+                                    <label class="form-check-label" for="analyzeLargeFiles">
+                                        Find large view controllers and view models
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="analyzeMemoryLeaks" checked>
+                                    <label class="form-check-label" for="analyzeMemoryLeaks">
+                                        Find potential memory leaks
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="analyzeForceUnwraps" checked>
+                                    <label class="form-check-label" for="analyzeForceUnwraps">
+                                        Find excessive force unwraps
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="analyzeUIUpdates" checked>
+                                    <label class="form-check-label" for="analyzeUIUpdates">
+                                        Find complex UI update logic
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary" id="analyzeButton">
+                                <i class="bi bi-search me-2"></i>Analyze Project
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4 d-none" id="resultsSection">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Analysis Results</h5>
+                        <div>
+                            <button class="btn btn-sm btn-light me-2" id="exportCSV">
+                                <i class="bi bi-file-earmark-spreadsheet me-1"></i>Export CSV
+                            </button>
+                            <button class="btn btn-sm btn-light" id="exportPDF">
+                                <i class="bi bi-file-earmark-pdf me-1"></i>Export PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs" id="resultTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="summary-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#summary" type="button" role="tab" 
+                                        aria-controls="summary" aria-selected="true">Summary</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="modules-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#modules" type="button" role="tab" 
+                                        aria-controls="modules" aria-selected="false">By Module</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="features-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#features" type="button" role="tab" 
+                                        aria-controls="features" aria-selected="false">By Feature</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="details-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#details" type="button" role="tab" 
+                                        aria-controls="details" aria-selected="false">All Issues</button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content p-3" id="resultTabsContent">
+                            <div class="tab-pane fade show active" id="summary" role="tabpanel" aria-labelledby="summary-tab">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0">Issue Severity</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="severityChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0">Issue Types</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <canvas id="issueTypeChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Top 10 Most Problematic Files</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover" id="topFilesTable">
+                                                <thead>
+                                                    <tr>
+                                                        <th>File Path</th>
+                                                        <th>Issue Count</th>
+                                                        <th>High</th>
+                                                        <th>Medium</th>
+                                                        <th>Low</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="topFilesTableBody">
+                                                    <!-- Will be populated by JavaScript -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="modules" role="tabpanel" aria-labelledby="modules-tab">
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <canvas id="moduleChart" height="100"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover" id="moduleTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Module</th>
+                                                <th>Total Issues</th>
+                                                <th>High</th>
+                                                <th>Medium</th>
+                                                <th>Low</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="moduleTableBody">
+                                            <!-- Will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="features" role="tabpanel" aria-labelledby="features-tab">
+                                <div class="row mb-3">
+                                    <div class="col-md-12">
+                                        <canvas id="featureChart" height="100"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover" id="featureTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Module</th>
+                                                <th>Feature</th>
+                                                <th>Total Issues</th>
+                                                <th>High</th>
+                                                <th>Medium</th>
+                                                <th>Low</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="featureTableBody">
+                                            <!-- Will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <div class="tab-pane fade" id="details" role="tabpanel" aria-labelledby="details-tab">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="issueSearch" placeholder="Search issues...">
+                                            <button class="btn btn-outline-secondary" type="button">
+                                                <i class="bi bi-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="issueTypeFilter">
+                                            <option value="">All Issue Types</option>
+                                            <!-- Will be populated by JavaScript -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" id="moduleFilter">
+                                            <option value="">All Modules</option>
+                                            <!-- Will be populated by JavaScript -->
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover" id="issuesTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Module</th>
+                                                <th>Feature</th>
+                                                <th>File</th>
+                                                <th>Line</th>
+                                                <th>Issue Type</th>
+                                                <th>Description</th>
+                                                <th>Severity</th>
+                                                <th>Impact</th>
+                                                <th>Recommendation</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="issuesTableBody">
+                                            <!-- Will be populated by JavaScript -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <h5 id="loadingModalLabel">Analyzing project...</h5>
+                    <p id="loadingStatus">Finding main thread blocking operations...</p>
+                    <div class="progress mt-3">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery must be loaded first for DataTables -->    
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>

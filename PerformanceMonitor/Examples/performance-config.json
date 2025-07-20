@@ -1,0 +1,22 @@
+{
+  "projectName": "YourSwiftApp",
+  "enabledCollectors": ["xctest", "instruments", "metrickit", "buildTime"],
+  "visualizationOptions": {
+    "enabledCharts": ["timeline", "heatmap", "comparison", "distribution", "breakdown"],
+    "defaultTimeRange": {
+      "days": 30
+    },
+    "colorScheme": "system"
+  },
+  "windsurf": {
+    "apiEndpoint": "https://your-windsurf-instance.com/api",
+    "apiKey": "YOUR_API_KEY",
+    "enableWebhooks": true,
+    "webhookEndpoint": "https://your-performance-metrics-server.com/webhook/code-review"
+  },
+  "storage": {
+    "type": "file",
+    "path": "/path/to/metrics/storage",
+    "retentionDays": 90
+  }
+}
