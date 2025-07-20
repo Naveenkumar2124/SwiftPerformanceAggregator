@@ -11,7 +11,6 @@ A comprehensive tool for collecting, analyzing, and visualizing performance metr
   - Swift Concurrency Analyzer
   - Build Time Analysis
 - Normalizes and aggregates data for unified analysis
-- Provides REST API for integration with Windsurf
 - Includes customizable visualization components
 - Works with both new and existing Swift projects
 
