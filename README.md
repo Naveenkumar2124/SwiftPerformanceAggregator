@@ -27,22 +27,17 @@ A comprehensive tool for collecting, analyzing, and visualizing performance metr
 ```bash
 git clone https://github.com/Naveenkumar2124/SwiftPerformanceAggregator.git
 cd swift-performance-aggregator
-swift build
+
 Usage
 As a Command Line Tool
 bash
 # Collect metrics from a project
-.build/debug/spa-cli collect --project /path/to/your/project
 
-# Generate a performance report
-.build/debug/spa-cli report --project /path/to/your/project --days 30
+chmod +x simple-module-report.sh
 
-# Start the visualization server
-.build/debug/spa-cli serve --port 8080
-As a Library in Your Project
-Add the package as a dependency in your 
-Package.swift
-:
+./simple-module-report.sh
+
+
 Web Interface
 The Performance Monitor includes a powerful web interface for interactive analysis and visualization of performance metrics.
 
